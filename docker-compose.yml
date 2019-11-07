@@ -4,20 +4,21 @@
 # address translation, and containers for MySQL, and the Minio S3 server.
 #
 # Initializes the database the first time MySQL is run from the database dump
-# in docker/mysql_init/dump.sql. If you want to use an alternative, replace this
+# in data/mysql_init/dump.sql. If you want to use an alternative, replace this
 # file.
 #
 # To reininitialize the database with the original or an alternative dump file,
-# remove the docker/db directory with
+# remove the data/db directory with
 #
-#   sudo rm -rf docker/db/*
+#   sudo rm -rf data/db/*
 #
 # before running `docker-compose up`
 
 version: "3.5"
 services:
   app:
-    entrypoint: ["/aquarium/docker/aquarium-entrypoint.sh"]
+    image: aquarium:2.7
+    entrypoint: ["aquarium-entrypoint.sh"]
     environment:
       TZ: America/Los_Angeles
     volumes:
@@ -34,6 +35,18 @@ services:
       - NET_ADMIN
     sysctls:
       - net.ipv4.conf.all.route_localnet=1
+      command: ["production"]
+    environment:
+      RAILS_ENV: production
+      RACK_ENV: production
+    volumes:
+      - public:/aquarium/public
+      - logs:/aquarium/log
+      - shared:/aquarium/shared
+      - ./config/database.yml:/aquarium/config/database.yml
+      - ./config/initializers/aquarium.rb:/aquarium/config/initializers/aquarium.rb
+      - ./config/environments/production.rb:/aquarium/config/environments/production.rb
+      - ./config/production_puma.rb:/aquarium/config/production_puma.rb
 
   db:
     image: mysql:5.7
@@ -45,13 +58,20 @@ services:
       MYSQL_ROOT_PASSWORD: aSecretAquarium
       TZ: America/Los_Angeles
     volumes:
-      - ./docker/db:/var/lib/mysql
-      - ./docker/mysql_init/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+      - ./data/db:/var/lib/mysql
+      - ./data/mysql_init/dump.sql:/docker-entrypoint-initdb.d/dump.sql
     networks:
       - aquarium_net
 
   krill:
-    entrypoint: ["/aquarium/docker/krill-entrypoint.sh"]
+    image: aquarium
+    command: ["production"]
+    volumes:
+      - ./config/database.yml:/aquarium/config/database.yml
+      - ./config/initializers/aquarium.rb:/aquarium/config/initializers/aquarium.rb
+      - ./config/environments/production.rb:/aquarium/config/environments/production.rb
+      - ./config/production_puma.rb:/aquarium/config/production_puma.rb
+    entrypoint: ["krill-entrypoint.sh"]
     networks:
       - aquarium_net
     expose:
@@ -69,8 +89,8 @@ services:
   s3:
     image: minio/minio:latest
     volumes:
-      - ./docker/s3/data:/data
-      - ./docker/s3/config:/root/.minio
+      - ./data/s3/data:/data
+      - ./data/s3/config:/root/.minio
     command: server /data
     expose:
       - "9000"
@@ -109,6 +129,16 @@ services:
       - app
       - s3
       - createbucket
+    volumes:
+      - public:/aquarium/public
+      - logs:/aquarium/log
+      - shared:/aquarium/shared
+      - ./config/nginx.production.conf:/etc/nginx/conf.d/default.conf:ro
 
 networks:
   aquarium_net:
+
+volumes:
+  public:
+  logs:
+  shared:
