@@ -1,0 +1,114 @@
+# Base docker-compose file for aquarium
+#
+# Defines services for Aquarium, Krill, database, and S3.  Uses Docker network
+# address translation, and containers for MySQL, and the Minio S3 server.
+#
+# Initializes the database the first time MySQL is run from the database dump
+# in docker/mysql_init/dump.sql. If you want to use an alternative, replace this
+# file.
+#
+# To reininitialize the database with the original or an alternative dump file,
+# remove the docker/db directory with
+#
+#   sudo rm -rf docker/db/*
+#
+# before running `docker-compose up`
+
+version: "3.5"
+services:
+  app:
+    entrypoint: ["/aquarium/docker/aquarium-entrypoint.sh"]
+    environment:
+      TZ: America/Los_Angeles
+    volumes:
+      - ./db:/aquarium/db
+      - ./log:/aquarium/log
+    networks:
+      - aquarium_net
+    expose:
+      - "3000"
+    depends_on:
+      - db
+      - s3
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.route_localnet=1
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: production
+      MYSQL_USER: aquarium
+      MYSQL_PASSWORD: aSecretAquarium
+      MYSQL_ROOT_PASSWORD: aSecretAquarium
+      TZ: America/Los_Angeles
+    volumes:
+      - ./docker/db:/var/lib/mysql
+      - ./docker/mysql_init/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    networks:
+      - aquarium_net
+
+  krill:
+    entrypoint: ["/aquarium/docker/krill-entrypoint.sh"]
+    networks:
+      - aquarium_net
+    expose:
+      - "3500"
+    environment:
+      TZ: America/Los_Angeles
+    depends_on:
+      - db
+      - app
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.route_localnet=1
+
+  s3:
+    image: minio/minio:latest
+    volumes:
+      - ./docker/s3/data:/data
+      - ./docker/s3/config:/root/.minio
+    command: server /data
+    expose:
+      - "9000"
+    environment:
+      MINIO_ACCESS_KEY: aquarium_minio
+      MINIO_SECRET_KEY: KUNAzqrNifmM6GwNVZ8IP7dxZAkYjhnwc0bfdz0W
+      MINIO_REGION: us-west-1
+    networks:
+      - aquarium_net
+
+  createbucket:
+    image: minio/mc:latest
+    depends_on:
+      - s3
+    entrypoint: >
+      /bin/sh -c "
+      while ! nc -z s3 9000; do
+        sleep 1;
+      done;
+      /usr/bin/mc config host add aqminio http://s3:9000 aquarium_minio KUNAzqrNifmM6GwNVZ8IP7dxZAkYjhnwc0bfdz0W;
+      /usr/bin/mc mb --region us-west-1 -p aqminio/images;
+      /usr/bin/mc policy set download aqminio/images;
+      exit 0;
+      "
+    networks:
+      - aquarium_net
+
+  web:
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+      - "9000:9000"
+    networks:
+      - aquarium_net
+    depends_on:
+      - app
+      - s3
+      - createbucket
+
+networks:
+  aquarium_net:
