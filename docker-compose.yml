@@ -14,16 +14,26 @@
 #
 # before running `docker-compose up`
 
+# set environment variable EMAIL_SERVICE to AWS to use AWS SES
+
 version: "3.5"
 services:
   app:
-    image: aquarium:2.7
-    entrypoint: ["aquarium-entrypoint.sh"]
+    image: bjkeller/aquarium:2.7.1
+    command: ["production"]
     environment:
+      DB_NAME: production
+      DB_USER: aquarium
+      DB_PASSWORD: aSecretAquarium
+      RAILS_ENV: production
+      RACK_ENV: production
+      S3_ACCESS_KEY_ID: aquarium_minio
+      S3_SECRET_ACCESS_KEY: KUNAzqrNifmM6GwNVZ8IP7dxZAkYjhnwc0bfdz0W
       TZ: America/Los_Angeles
     volumes:
-      - ./db:/aquarium/db
-      - ./log:/aquarium/log
+      - public:/aquarium/public
+      - logs:/aquarium/log
+      - shared:/aquarium/shared
     networks:
       - aquarium_net
     expose:
@@ -35,18 +45,6 @@ services:
       - NET_ADMIN
     sysctls:
       - net.ipv4.conf.all.route_localnet=1
-      command: ["production"]
-    environment:
-      RAILS_ENV: production
-      RACK_ENV: production
-    volumes:
-      - public:/aquarium/public
-      - logs:/aquarium/log
-      - shared:/aquarium/shared
-      - ./config/database.yml:/aquarium/config/database.yml
-      - ./config/initializers/aquarium.rb:/aquarium/config/initializers/aquarium.rb
-      - ./config/environments/production.rb:/aquarium/config/environments/production.rb
-      - ./config/production_puma.rb:/aquarium/config/production_puma.rb
 
   db:
     image: mysql:5.7
@@ -64,19 +62,16 @@ services:
       - aquarium_net
 
   krill:
-    image: aquarium
-    command: ["production"]
-    volumes:
-      - ./config/database.yml:/aquarium/config/database.yml
-      - ./config/initializers/aquarium.rb:/aquarium/config/initializers/aquarium.rb
-      - ./config/environments/production.rb:/aquarium/config/environments/production.rb
-      - ./config/production_puma.rb:/aquarium/config/production_puma.rb
-    entrypoint: ["krill-entrypoint.sh"]
+    image: bjkeller/aquarium:2.7.1
+    command: ["krill", "production"]
     networks:
       - aquarium_net
     expose:
       - "3500"
     environment:
+      DB_NAME: production
+      DB_USER: aquarium
+      DB_PASSWORD: aSecretAquarium
       TZ: America/Los_Angeles
     depends_on:
       - db
