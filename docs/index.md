@@ -44,10 +44,8 @@ To run Aquarium in production with Docker on your computer:
     > The first run initializes the database, and so will be slower than subsequent runs.
     > This can take longer than you think is reasonable, but let it finish unmolested.
 
-    
-
 5.  Check that everything is working. Once all of the services for Aquarium have started, visit `localhost` with the Chrome browser to find the Aquarium login page.
-    
+
     When started using the default database, aquarium has a single user with login `neptune` and password `aquarium`.
 
     If you get errors during startup after doing a build, you may need to run
@@ -71,9 +69,9 @@ docker-compose down -v
 
 On Windows, use the following in place of `docker-compose` 
 
-    ```bash
-    docker-compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.windows.yml
-    ```
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.windows.yml
+```
 
 When running Aquarium inside the Docker toolbox VM, the address will be `192.168.99.100` instead of `localhost`.
 
