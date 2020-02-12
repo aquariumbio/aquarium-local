@@ -8,12 +8,25 @@ Docker configuration for running Aquarium with a local (non-deployment) configur
 
 1. Clone this repository.
 2. Change into directory.
-3. Run
+3. Setup the directory
+
+   ```bash
+   bash ./setup.sh
+   ```
+
+4. Run
+
+   ```bash
+   docker-compose up --build
+   ```
+
+For future runs the command
 
 ```bash
-docker-compose up --build
+docker-compose up
 ```
 
+should be sufficient
 
 
 
