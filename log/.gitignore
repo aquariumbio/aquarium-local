@@ -1,0 +1,4 @@
+# This directory is used to hold the Aquarium logs that shouldn't be checked in.
+*
+# but keep this file to include the directory
+!.gitignore
