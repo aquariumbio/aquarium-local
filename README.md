@@ -28,5 +28,7 @@ docker-compose up
 
 should be sufficient
 
+## Changing the database
 
-
+The database is initialized from the file `data/mysql_init/dump.sql` that does not exist by default.
+The `setup.sh` script will copy `data/mysql_init/default.sql` to this file, if the dump file does not already exist.
