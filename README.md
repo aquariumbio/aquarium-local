@@ -30,3 +30,12 @@ should be sufficient
 
 The database is initialized from the file `data/mysql_init/dump.sql` that does not exist by default.
 The `setup.sh` script will copy `data/mysql_init/default.sql` to this file, if the dump file does not already exist.
+
+If you want a new `dump.sql` file to be loaded, your need to remove the database files with the command
+
+   ```bash
+   rm -rf data/db/*
+   ```
+
+before running `docker-compose up`.
+Depending on the size of the database dump, the first run may be slower.
