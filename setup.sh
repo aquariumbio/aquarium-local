@@ -14,3 +14,9 @@ if [[ ! -f "$ENV_FILE" ]]; then
     echo 'TIMEZONE='$timezone >> $ENV_FILE
     echo 'SECRET_KEY_BASE='$key_base >> $ENV_FILE 
 fi
+
+DB_INIT_DIR=./data/mysql_init
+DB_FILE=$DB_INIT_DIR/dump.sql
+if [[ ! -f "$DB_FILE" ]]; then
+    cp $DB_INIT_DIR/default.sql $DB_INIT_DIR/dump.sql
+fi
