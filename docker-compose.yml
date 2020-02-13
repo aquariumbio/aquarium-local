@@ -91,7 +91,7 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${S3_ID}
       MINIO_SECRET_KEY: ${S3_SECRET_ACCESS_KEY}
-      MINIO_REGION: us-west-1 
+      MINIO_REGION: ${S3_REGION} 
     networks:
       - aquarium_net
 
