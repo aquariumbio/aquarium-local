@@ -2,8 +2,6 @@
 
 Docker configuration for running Aquarium with a local (non-deployment) configuration.
 
-**This is a work in progress**
-
 ## Getting started
 
 1. Clone this repository.
