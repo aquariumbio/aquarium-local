@@ -33,6 +33,7 @@ services:
       - public:/aquarium/public
       - logs:/aquarium/log
       - shared:/aquarium/shared
+      - ./config/instance.yml:/aquarium/config/instance.yml
     networks:
       - aquarium_net
     expose:
