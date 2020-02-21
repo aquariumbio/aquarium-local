@@ -105,8 +105,9 @@ services:
       while ! nc -z s3 9000; do
         sleep 1;
       done;
+      sleep 1;
       /usr/bin/mc config host add aqminio http://s3:9000 ${S3_ID} ${S3_SECRET_ACCESS_KEY};
-      /usr/bin/mc mb --region us-west-1 -p aqminio/images;
+      /usr/bin/mc mb --region ${S3_REGION} -p aqminio/images;
       /usr/bin/mc policy set download aqminio/images;
       exit 0;
       "
