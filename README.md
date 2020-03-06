@@ -2,29 +2,42 @@
 
 Docker configuration for running Aquarium with a local (non-deployment) configuration.
 
+This configuration is intended to support protocol development or evaluation, and supports all Aquarium services except for email notifications.
+
 ## Getting started
 
-1. Clone this repository.
-2. Change into directory.
-3. Setup the directory
+1. Install [Docker](https://www.docker.com/get-started) on your computer.
+2. Clone this repository
+
+   ```bash
+   git clone https://github.com/klavinslab/aquarium-local.git
+   ```
+
+3. Change into directory
+
+   ```bash
+   cd aquarium-local
+   ```
+
+4. Setup the directory
 
    ```bash
    bash ./setup.sh
    ```
 
-4. Run
+5. Run
 
    ```bash
    docker-compose up --build
    ```
 
-For future runs the command
+   For future runs the command
 
-```bash
-docker-compose up
-```
+   ```bash
+   docker-compose up
+   ```
 
-should be sufficient
+   should be sufficient
 
 ## Changing the database
 
