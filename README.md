@@ -38,6 +38,14 @@ This configuration is intended to support protocol development or evaluation, an
    ```
 
    should be sufficient
+   
+## Udating the Docker image
+To update the Docker image with the latest version, run
+```bash
+docker-compose down
+docker-compose pull app
+docker-compose up
+```
 
 ## Changing the database
 
@@ -52,3 +60,5 @@ If you want a new `dump.sql` file to be loaded, your need to remove the database
 
 before running `docker-compose up`.
 Depending on the size of the database dump, the first run may be slower.
+
+If you need to change the database frequently, for example while testing code, you can use [this script](https://github.com/dvnstrcklnd/aq-hot-swap-db).
