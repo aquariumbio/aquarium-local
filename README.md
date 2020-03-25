@@ -28,24 +28,12 @@ This configuration is intended to support protocol development or evaluation, an
 5. Run
 
    ```bash
-   docker-compose up --build
+   chmod u+x aquarium.sh
+   ./aquarium.sh up
    ```
 
-   For future runs the command
-
-   ```bash
-   docker-compose up
-   ```
-
-   should be sufficient
-   
-## Udating the Docker image
-To update the Docker image with the latest version, run
-```bash
-docker-compose down
-docker-compose pull app
-docker-compose up
-```
+   to run Aquarium.
+   You wont need to change the permissions with `chmod` each time.
 
 ## Changing the database
 
@@ -54,11 +42,11 @@ The `setup.sh` script will copy `data/mysql_init/default.sql` to this file, if t
 
 If you want a new `dump.sql` file to be loaded, your need to remove the database files with the command
 
-   ```bash
-   rm -rf data/db/*
-   ```
+```bash
+rm -rf data/db/*
+```
 
-before running `docker-compose up`.
+before running `./aquarium.sh up`.
 Depending on the size of the database dump, the first run may be slower.
 
 If you need to change the database frequently, for example while testing code, you can use [this script](https://github.com/dvnstrcklnd/aq-hot-swap-db).
