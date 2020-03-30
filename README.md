@@ -19,13 +19,7 @@ This configuration is intended to support protocol development or evaluation, an
    cd aquarium-local
    ```
 
-4. Setup the directory
-
-   ```bash
-   bash ./setup.sh
-   ```
-
-5. Run
+4. Run
 
    ```bash
    chmod u+x aquarium.sh
@@ -33,7 +27,14 @@ This configuration is intended to support protocol development or evaluation, an
    ```
 
    to run Aquarium.
+
    You wont need to change the permissions with `chmod` each time.
+
+5. To stop Aquarium, run
+
+   ```bash
+   ./aquarium.sh down
+   ```
 
 ## Changing the database
 
@@ -50,3 +51,4 @@ before running `./aquarium.sh up`.
 Depending on the size of the database dump, the first run may be slower.
 
 If you need to change the database frequently, for example while testing code, you can use [this script](https://github.com/dvnstrcklnd/aq-hot-swap-db).
+
