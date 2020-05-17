@@ -39,7 +39,7 @@ This configuration is intended to support protocol development or evaluation, an
 ## Changing the database
 
 The database is initialized from the file `data/mysql_init/dump.sql` that does not exist by default.
-The `setup.sh` script will copy `data/mysql_init/default.sql` to this file, if the dump file does not already exist.
+The `aquarium.sh` script will copy `data/mysql_init/default.sql` to this file, if the dump file does not already exist.
 
 If you want a new `dump.sql` file to be loaded, your need to remove the database files with the command
 
