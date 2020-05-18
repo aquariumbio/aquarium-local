@@ -1,9 +1,6 @@
 #!/bin/sh
 ENV_FILE=.env
 
-
-
-
 _has_variable() {
     variable=$1
     grep -q "^$variable" $ENV_FILE
