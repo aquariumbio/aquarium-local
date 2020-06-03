@@ -19,7 +19,7 @@
 version: "3.5"
 services:
   app:
-    image: aquariumbio/aquarium:2.7.3
+    image: aquariumbio/aquarium:2.8.0
     command: ["production"]
     environment:
       DB_NAME: ${DB_NAME}
@@ -84,7 +84,7 @@ services:
       - net.ipv4.conf.all.route_localnet=1
 
   s3:
-    image: minio/minio:latest
+    image: minio/minio:edge
     volumes:
       - ./data/s3/data:/data
       - ./data/s3/config:/root/.minio
