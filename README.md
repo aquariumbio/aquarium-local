@@ -4,9 +4,10 @@ Docker configuration for running Aquarium with a local (non-deployment) configur
 
 This configuration is intended to support protocol development or evaluation, and supports all Aquarium services except for email notifications.
 
-## Getting started
+## Quick Start
 
 1. Install [Docker](https://www.docker.com/get-started) on your computer.
+
 2. Clone this repository
 
    ```bash
@@ -36,19 +37,5 @@ This configuration is intended to support protocol development or evaluation, an
    ./aquarium.sh down
    ```
 
-## Changing the database
-
-The database is initialized from the file `data/mysql_init/dump.sql` that does not exist by default.
-The `aquarium.sh` script will copy `data/mysql_init/default.sql` to this file, if the dump file does not already exist.
-
-If you want a new `dump.sql` file to be loaded, your need to remove the database files with the command
-
-```bash
-rm -rf data/db/*
-```
-
-before running `./aquarium.sh up`.
-Depending on the size of the database dump, the first run may be slower.
-
-If you need to change the database frequently, for example while testing code, you can use [this script](https://github.com/dvnstrcklnd/aq-hot-swap-db).
+## [Documentation](http://klavinslab.org/aquarium-local/)
 

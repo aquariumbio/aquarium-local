@@ -6,8 +6,6 @@ Aquarium is available as a Docker image that can be configured for different dep
 This repo provides a configuration that allows running Aquarium on a single computer such as a laptop, and these instructions are focused on managing a local instance for protocol development.
 See the [Aquarium](aquarium.bio) site for guidance for production deployments.
 
-Use of Aquarium with this repository is constrained by the [Aquarium software licence](https://github.com/klavinslab/aquarium/blob/master/license.md).
-
 ## Running Aquarium with Docker
 
 To run Aquarium in production with Docker on your computer:
@@ -20,52 +18,40 @@ To run Aquarium in production with Docker on your computer:
     git clone https://github.com/klavinslab/aquarium-local.git
     ```
 
-3.  Build the docker images. Change into the `aquarium-local` directory
+3.  Change into the `aquarium-local` directory
 
     ```bash
     cd aquarium-local
     ```
 
-    and run the command
+4.  Start Aquarium by running the command
 
     ```bash
-    docker-compose build
+    chmod u+x aquarium.sh
+    ./aquarium.sh up
     ```
 
-4.  Start the container by running the command
+    Note:
+    - You wont need to change the permissions with `chmod` each time.
+    - The first run initializes the database, and so will be slower than subsequent runs.
+      This can take longer than you think is reasonable, but let it finish unmolested.
 
-    ```bash
-    docker-compose up
-    ```
-
-    to start the services for Aquarium.
-
-    > **Important**:
-    > The first run initializes the database, and so will be slower than subsequent runs.
-    > This can take longer than you think is reasonable, but let it finish unmolested.
-
-5.  Check that everything is working. Once all of the services for Aquarium have started, visit `localhost` with the Chrome browser to find the Aquarium login page.
+5.  Once all of the services for Aquarium have started, visit `localhost` with the Chrome browser to find the Aquarium login page.
 
     When started using the default database, aquarium has a single user with login `neptune` and password `aquarium`.
 
-    If you get errors during startup after doing a build, you may need to run
-
-    ```bash
-    docker-compose pull --ignore-pull-failures
-    docker-compose build --no-cache
-    ```
-
-    And, if that doesn't work, let us know.
 
 ## Stopping Aquarium in Docker
 
 To halt the Aquarium services, first type `ctrl-c` in the terminal to stop the running containers, then remove the containers by running
 
 ```bash
-docker-compose down -v
+./aquarium.sh down -v
 ```
 
 ## Running on Windows
+
+**this needs to be updated**
 
 On Windows, use the following in place of `docker-compose` 
 
@@ -77,43 +63,27 @@ When running Aquarium inside the Docker toolbox VM, the address will be `192.168
 
 ## Updating/Migrating Aquarium
 
-**not sure if this is correct**
-
-Whenever a new version of Aquarium is released, first run
-
-```bash
-docker-compose down --rmi all -v --remove-orphans
-```
-
-to remove existing Docker configuration.
-Then run
+The `aquarium.sh` script will pull updates within a version of Aquarium, however, when a new version of Aquarium is released you will need to run the command
 
 ```bash
 git pull
-git checkout v2.6.3
 ```
 
-to get the latest code. Replace `v2.6.3` with whatever the tag of the latest release is.
-Then run
-
-```bash
-docker-compose build
-```
-
-to rebuild the Docker images.
+which will update the configuration files.
 
 If there are any necessary `rake` tasks (see the release notes of the new version) run
 
 ```bash
 docker-compose up -d
 docker-compose exec app /bin/sh
+
 ```
 
-which stars Aquarium and the database sever. Then run the rake tasks.
-For instance, to migrate the database, do:
+followed by the rake task. 
+For instance, to run a database migration, you would run the command
 
 ```bash
-rake db:migrate RAILS_ENV=production
+RAILS_ENV=production rake db:migrate 
 ```
 
 After you've run all of the rake tasks, exit from the connection and shutdown Aquarium with
@@ -123,12 +93,13 @@ exit
 docker-compose down
 ```
 
-And, finally, restart Aquarium with `docker-compose up` as before.
+And, finally, restart Aquarium with `./aquarium.sh up` as before.
 
 ## Changing the Database
 
 Aquarium database files are stored in `data/db`, which allows the database to persist between runs.
 If this directory is empty, such as the first time Aquarium is run, the database is initialized from the database dump `data/mysql_init/dump.sql`.
+The `aquarium.sh` script will copy `data/mysql_init/default.sql` to this file, if the dump file does not already exist.
 
 You can use a different database dump by renaming it to this file with
 
@@ -143,9 +114,11 @@ then removing the contents of the `data/db` directory
 rm -rf data/db/*
 ```
 
-and finally restarting Aquarium with `docker-compose` as before.
+and finally restarting Aquarium with `./aquarium.sh up` as before.
 If Aquarium has been updated since the database dump was generated, it is a good idea to run database migrations as described above.
 
 > **Important**: If you swap in a large database dump, the database has to be reinitialized.
 > And the larger the database, the longer the initialization will take.
 > _Let the initialization finish._
+
+If you need to change the database frequently, for example while testing code, you can use [this script](https://github.com/dvnstrcklnd/aq-hot-swap-db).
