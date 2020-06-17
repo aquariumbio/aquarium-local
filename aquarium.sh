@@ -69,7 +69,9 @@ _setup() {
     fi
 }
 
-if [ $1 = "up" ]; then
+if [ $# -eq 0 ]; then
+    echo "Expecting arguments: up, down or valid docker-compose argument"
+elif [ $1 = "up" ]; then
     _setup
     docker-compose pull && docker-compose $@
 elif [ $1 = "down" ]; then
