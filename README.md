@@ -37,5 +37,5 @@ This configuration is intended to support protocol development or evaluation, an
    ./aquarium.sh down
    ```
 
-## [Documentation](http://klavinslab.org/aquarium-local/)
+## [Documentation](http://aquariumbio.github.io/aquarium-local/)
 
