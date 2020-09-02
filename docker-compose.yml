@@ -19,7 +19,7 @@
 version: "3.5"
 services:
   app:
-    image: aquariumbio/aquarium:2.8.0
+    image: aquariumbio/aquarium:${AQUARIUM_VERSION}
     command: ["production"]
     environment:
       DB_NAME: ${DB_NAME}
@@ -64,7 +64,7 @@ services:
       - aquarium_net
 
   krill:
-    image: aquariumbio/aquarium:2.8.0
+    image: aquariumbio/aquarium:${AQUARIUM_VERSION}
     command: ["krill", "production"]
     networks:
       - aquarium_net
