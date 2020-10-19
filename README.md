@@ -11,7 +11,7 @@ This configuration is intended to support protocol development or evaluation, an
 2. Clone this repository
 
    ```bash
-   git clone https://github.com/klavinslab/aquarium-local.git
+   git clone https://github.com/aquariumbio/aquarium-local.git
    ```
 
 3. Change into directory
@@ -37,5 +37,5 @@ This configuration is intended to support protocol development or evaluation, an
    ./aquarium.sh down
    ```
 
-## [Documentation](http://klavinslab.org/aquarium-local/)
+## [Documentation](http://aquariumbio.github.io/aquarium-local/)
 
