@@ -76,6 +76,9 @@ if [ $# -eq 0 ]; then
 elif [ $1 = "up" ]; then
     _setup
     docker-compose pull && docker-compose $@
+elif [ $1 = "update" ]; then
+    _setup
+    docker-compose pull && docker-compose run --rm app $@
 elif [ $1 = "down" ]; then
     docker-compose $@ -v
 else
