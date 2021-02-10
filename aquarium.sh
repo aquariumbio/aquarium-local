@@ -50,7 +50,7 @@ _setup() {
         touch $ENV_FILE
     fi
 
-    _set_variable 'AQUARIUM_VERSION' '2.8.1'
+    _set_variable 'AQUARIUM_VERSION' '2.9.0'
     _set_variable 'APP_PUBLIC_PORT' '80'
     _set_variable 'S3_PUBLIC_PORT' '9000'
     _set_variable 'DB_NAME' 'production'
@@ -76,6 +76,11 @@ if [ $# -eq 0 ]; then
 elif [ $1 = "up" ]; then
     _setup
     docker-compose pull && docker-compose $@
+elif [ $1 = "update" ]; then
+    # TODO: this should just replace anything that has been changed
+    rm $ENV_FILE
+    _setup
+    docker-compose pull && docker-compose run --rm app $@
 elif [ $1 = "down" ]; then
     docker-compose $@ -v
 else
