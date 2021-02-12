@@ -50,7 +50,7 @@ _setup() {
         touch $ENV_FILE
     fi
 
-    _set_variable 'AQUARIUM_VERSION' '2.9.0'
+    _set_variable 'AQUARIUM_VERSION' 'edge'
     _set_variable 'APP_PUBLIC_PORT' '80'
     _set_variable 'S3_PUBLIC_PORT' '9000'
     _set_variable 'DB_NAME' 'production'
