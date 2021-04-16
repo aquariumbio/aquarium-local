@@ -75,6 +75,7 @@ if [ $# -eq 0 ]; then
     echo "Expecting arguments: up, down or valid docker-compose argument"
 elif [ $1 = "up" ]; then
     _setup
+    # TODO: if grep Microsoft /proc/version finds something, then running WSL so need to use windows compose file
     docker-compose pull && docker-compose $@
 elif [ $1 = "update" ]; then
     # TODO: this should just replace anything that has been changed
