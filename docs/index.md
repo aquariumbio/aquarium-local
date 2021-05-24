@@ -32,6 +32,7 @@ To run Aquarium in production with Docker on your computer:
     ```
 
     Note:
+
     - You wont need to change the permissions with `chmod` each time.
     - The first run initializes the database, and so will be slower than subsequent runs.
       This can take longer than you think is reasonable, but let it finish unmolested.
@@ -107,13 +108,13 @@ Should you encounter an error, there are a couple of things you can do while Aqu
    It should look like this, with all services other than the `createbucket` service in the `Up` state.
 
    ```shell
-   Name                           Command               State                      Ports                   
+   Name                           Command               State                      Ports
    --------------------------------------------------------------------------------------------------------------------
-   aquarium-local_app_1            /aquarium/entrypoint.sh pr ...   Up       3000/tcp                                  
-   aquarium-local_createbucket_1   /bin/sh -c  while ! nc -z  ...   Exit 0                                             
-   aquarium-local_db_1             docker-entrypoint.sh mysqld      Up       3306/tcp, 33060/tcp                       
-   aquarium-local_krill_1          /aquarium/entrypoint.sh kr ...   Up       3500/tcp                                  
-   aquarium-local_s3_1             /usr/bin/docker-entrypoint ...   Up       9000/tcp                                  
+   aquarium-local_app_1            /aquarium/entrypoint.sh pr ...   Up       3000/tcp
+   aquarium-local_createbucket_1   /bin/sh -c  while ! nc -z  ...   Exit 0
+   aquarium-local_db_1             docker-entrypoint.sh mysqld      Up       3306/tcp, 33060/tcp
+   aquarium-local_krill_1          /aquarium/entrypoint.sh kr ...   Up       3500/tcp
+   aquarium-local_s3_1             /usr/bin/docker-entrypoint ...   Up       9000/tcp
    aquarium-local_web_1            /docker-entrypoint.sh ngin ...   Up       0.0.0.0:80->80/tcp, 0.0.0.0:9000->9000/tcp
    ```
 
