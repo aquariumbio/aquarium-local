@@ -1,8 +1,9 @@
--- MySQL dump 10.13  Distrib 5.7.29, for Linux (x86_64)
+mysqldump: [Warning] Using a password on the command line interface can be insecure.
+-- MySQL dump 10.13  Distrib 5.7.34, for Linux (x86_64)
 --
 -- Host: localhost    Database: production
 -- ------------------------------------------------------
--- Server version	5.7.29
+-- Server version	5.7.34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +15,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+mysqldump: Error: 'Access denied; you need (at least one of) the PROCESS privilege(s) for this operation' when trying to dump tablespaces
 
 --
 -- Table structure for table `account_logs`
@@ -31,7 +33,12 @@ CREATE TABLE `account_logs` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_account_log_associations_on_user_id` (`user_id`)
+  KEY `index_account_log_associations_on_user_id` (`user_id`),
+  KEY `index_account_logs_on_row1` (`row1`),
+  KEY `fk_rails_8e6656e8a4` (`row2`),
+  CONSTRAINT `fk_rails_0fc0d85f00` FOREIGN KEY (`row1`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_8e6656e8a4` FOREIGN KEY (`row2`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_c91e200913` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -68,7 +75,12 @@ CREATE TABLE `accounts` (
   PRIMARY KEY (`id`),
   KEY `index_accounts_on_budget_id` (`budget_id`),
   KEY `index_accounts_on_job_id` (`job_id`),
-  KEY `index_accounts_on_user_id` (`user_id`)
+  KEY `index_accounts_on_user_id` (`user_id`),
+  KEY `index_accounts_on_operation_id` (`operation_id`),
+  CONSTRAINT `fk_rails_17f7ad8fd1` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_9910875b16` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_b1e30bebc8` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_ba2f9f474f` FOREIGN KEY (`operation_id`) REFERENCES `operations` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -98,7 +110,10 @@ CREATE TABLE `allowable_field_types` (
   PRIMARY KEY (`id`),
   KEY `index_allowable_field_types_on_field_type_id` (`field_type_id`),
   KEY `index_allowable_field_types_on_object_type_id` (`object_type_id`),
-  KEY `index_allowable_field_types_on_sample_type_id` (`sample_type_id`)
+  KEY `index_allowable_field_types_on_sample_type_id` (`sample_type_id`),
+  CONSTRAINT `fk_rails_1d47761735` FOREIGN KEY (`field_type_id`) REFERENCES `field_types` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_2bc0f30ee5` FOREIGN KEY (`sample_type_id`) REFERENCES `sample_types` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_a968b4a54c` FOREIGN KEY (`object_type_id`) REFERENCES `object_types` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -217,7 +232,9 @@ CREATE TABLE `data_associations` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_data_associations_on_upload_id` (`upload_id`)
+  KEY `index_data_associations_on_upload_id` (`upload_id`),
+  KEY `index_data_associations_on_parent_class_and_parent_id` (`parent_class`,`parent_id`),
+  CONSTRAINT `fk_rails_26226b25a9` FOREIGN KEY (`upload_id`) REFERENCES `uploads` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -254,7 +271,8 @@ CREATE TABLE `field_types` (
   `preferred_operation_type_id` int(11) DEFAULT NULL,
   `preferred_field_type_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_field_types_on_sample_type_id` (`parent_id`)
+  KEY `index_field_types_on_sample_type_id` (`parent_id`),
+  KEY `index_field_types_on_parent_class_and_parent_id` (`parent_class`,`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -292,7 +310,14 @@ CREATE TABLE `field_values` (
   PRIMARY KEY (`id`),
   KEY `index_field_values_on_allowable_field_type_id` (`allowable_field_type_id`),
   KEY `index_field_values_on_field_type_id` (`field_type_id`),
-  KEY `index_field_values_on_sample_id` (`parent_id`)
+  KEY `index_field_values_on_sample_id` (`parent_id`),
+  KEY `index_field_values_on_parent_class_and_parent_id` (`parent_class`,`parent_id`),
+  KEY `fk_rails_319b222007` (`child_item_id`),
+  KEY `fk_rails_e04e5b0273` (`child_sample_id`),
+  CONSTRAINT `fk_rails_212ef5a639` FOREIGN KEY (`field_type_id`) REFERENCES `field_types` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_319b222007` FOREIGN KEY (`child_item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_50fa557e81` FOREIGN KEY (`allowable_field_type_id`) REFERENCES `allowable_field_types` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_e04e5b0273` FOREIGN KEY (`child_sample_id`) REFERENCES `samples` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -349,7 +374,11 @@ CREATE TABLE `invoices` (
   `updated_at` datetime NOT NULL,
   `status` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `notes` text COLLATE utf8_unicode_ci,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_invoices_on_user_id` (`user_id`),
+  KEY `index_invoices_on_budget_id` (`budget_id`),
+  CONSTRAINT `fk_rails_3d1522a0d8` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_3dd4c64f3b` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -381,7 +410,12 @@ CREATE TABLE `items` (
   `data` mediumtext COLLATE utf8_unicode_ci,
   `locator_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_items_on_object_type_id` (`object_type_id`)
+  KEY `index_items_on_object_type_id` (`object_type_id`),
+  KEY `index_items_on_sample_id` (`sample_id`),
+  KEY `index_items_on_locator_id` (`locator_id`),
+  CONSTRAINT `fk_rails_6b7d1f696e` FOREIGN KEY (`sample_id`) REFERENCES `samples` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_a6ef7e6462` FOREIGN KEY (`object_type_id`) REFERENCES `object_types` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_d02c2a2df1` FOREIGN KEY (`locator_id`) REFERENCES `locators` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -392,6 +426,39 @@ CREATE TABLE `items` (
 LOCK TABLES `items` WRITE;
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `job_assignment_logs`
+--
+
+DROP TABLE IF EXISTS `job_assignment_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `job_assignment_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` int(11) DEFAULT NULL,
+  `assigned_by` int(11) DEFAULT NULL,
+  `assigned_to` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_job_assignment_logs_on_job_id` (`job_id`),
+  KEY `index_job_assignment_logs_on_assigned_by` (`assigned_by`),
+  KEY `index_job_assignment_logs_on_assigned_to` (`assigned_to`),
+  CONSTRAINT `fk_rails_3c67081d23` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_afd4527da7` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_cec96ca499` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `job_assignment_logs`
+--
+
+LOCK TABLES `job_assignment_logs` WRITE;
+/*!40000 ALTER TABLE `job_assignment_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `job_assignment_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -407,7 +474,11 @@ CREATE TABLE `job_associations` (
   `operation_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_job_associations_on_job_id` (`job_id`),
+  KEY `index_job_associations_on_operation_id` (`operation_id`),
+  CONSTRAINT `fk_rails_25efd65a81` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_8f590b1e09` FOREIGN KEY (`operation_id`) REFERENCES `operations` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -429,7 +500,7 @@ DROP TABLE IF EXISTS `jobs`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `arguments` text COLLATE utf8_unicode_ci,
   `state` longtext COLLATE utf8_unicode_ci,
   `created_at` datetime NOT NULL,
@@ -442,7 +513,11 @@ CREATE TABLE `jobs` (
   `latest_start_time` datetime DEFAULT NULL,
   `metacol_id` int(11) DEFAULT NULL,
   `successor_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_jobs_on_user_id` (`user_id`),
+  KEY `index_jobs_on_group_id` (`group_id`),
+  CONSTRAINT `fk_rails_4928288085` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_df6238c8a6` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -496,7 +571,11 @@ CREATE TABLE `locators` (
   `number` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_locators_on_item_id` (`item_id`),
+  KEY `index_locators_on_wizard_id` (`wizard_id`),
+  CONSTRAINT `fk_rails_64c3d29cac` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_bb120b6235` FOREIGN KEY (`wizard_id`) REFERENCES `wizards` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -519,12 +598,16 @@ DROP TABLE IF EXISTS `logs`;
 CREATE TABLE `logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` int(11) DEFAULT NULL,
-  `user_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `entry_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `data` text COLLATE utf8_unicode_ci,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_logs_on_job_id` (`job_id`),
+  KEY `index_logs_on_user_id` (`user_id`),
+  CONSTRAINT `fk_rails_81ff90ed92` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_8fc980bf44` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -550,7 +633,11 @@ CREATE TABLE `memberships` (
   `group_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_memberships_on_group_id` (`group_id`),
+  KEY `index_memberships_on_user_id` (`user_id`),
+  CONSTRAINT `fk_rails_99326fb65d` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_aaf389f138` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=543 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -656,7 +743,9 @@ CREATE TABLE `operations` (
   `parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_operations_on_operation_type_id` (`operation_type_id`),
-  KEY `index_operations_on_user_id` (`user_id`)
+  KEY `index_operations_on_user_id` (`user_id`),
+  CONSTRAINT `fk_rails_10e3ccbd52` FOREIGN KEY (`operation_type_id`) REFERENCES `operation_types` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_63fbf4e94e` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -714,7 +803,10 @@ CREATE TABLE `part_associations` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_part_associations_on_collection_id_and_row_and_column` (`collection_id`,`row`,`column`)
+  UNIQUE KEY `index_part_associations_on_collection_id_and_row_and_column` (`collection_id`,`row`,`column`),
+  KEY `index_part_associations_on_part_id` (`part_id`),
+  CONSTRAINT `fk_rails_39a9c3d5bb` FOREIGN KEY (`part_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_f889cf647d` FOREIGN KEY (`collection_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -742,7 +834,9 @@ CREATE TABLE `plan_associations` (
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_plan_associations_on_operation_id` (`operation_id`),
-  KEY `index_plan_associations_on_plan_id` (`plan_id`)
+  KEY `index_plan_associations_on_plan_id` (`plan_id`),
+  CONSTRAINT `fk_rails_5ca5742cd9` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_c36597dd79` FOREIGN KEY (`operation_id`) REFERENCES `operations` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -774,7 +868,10 @@ CREATE TABLE `plans` (
   `folder` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `layout` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
-  KEY `index_plans_on_user_id` (`user_id`)
+  KEY `index_plans_on_user_id` (`user_id`),
+  KEY `index_plans_on_budget_id` (`budget_id`),
+  CONSTRAINT `fk_rails_45da853770` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_55f7cff6c3` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -830,7 +927,11 @@ CREATE TABLE `samples` (
   `user_id` int(11) DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `data` text COLLATE utf8_unicode_ci,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_samples_on_sample_type_id` (`sample_type_id`),
+  KEY `index_samples_on_user_id` (`user_id`),
+  CONSTRAINT `fk_rails_8e0800c2e2` FOREIGN KEY (`sample_type_id`) REFERENCES `sample_types` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_d699eb2564` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -862,7 +963,7 @@ CREATE TABLE `schema_migrations` (
 
 LOCK TABLES `schema_migrations` WRITE;
 /*!40000 ALTER TABLE `schema_migrations` DISABLE KEYS */;
-INSERT INTO `schema_migrations` VALUES ('20131029153603'),('20131029153634'),('20131111143554'),('20131111143621'),('20131113172448'),('20131113181345'),('20131119164152'),('20131119164208'),('20131122032927'),('20131223192901'),('20140131235419'),('20140404201838'),('20140404201900'),('20140404204258'),('20140408224245'),('20140428213241'),('20140507230919'),('20140508203643'),('20140513225335'),('20140616190537'),('20140714220057'),('20140907220135'),('20150124195318'),('20150124201744'),('20150129213358'),('20150129221830'),('20150212051010'),('20150212051027'),('20150213173621'),('20150222153442'),('20150326202149'),('20150405154727'),('20150515160553'),('20150515160619'),('20150719221125'),('20150719221226'),('20150719221253'),('20150719223053'),('20150720044538'),('20150828232337'),('20150923014954'),('20150923015030'),('20150923184243'),('20150924044044'),('20150926162327'),('20151027164741'),('20151029034310'),('20151118210640'),('20151203054202'),('20160128203950'),('20160128205317'),('20160128205943'),('20160129021809'),('20160129164244'),('20160129165100'),('20160330023703'),('20160330033810'),('20160330185947'),('20160330190634'),('20160411130601'),('20160411131711'),('20160412010529'),('20160427043024'),('20160427043546'),('20160429232330'),('20160429232408'),('20160429232434'),('20160430000308'),('20160430152749'),('20160514044605'),('20160526204339'),('20160607162741'),('20160615161649'),('20160720211005'),('20161113203042'),('20161219172133'),('20170330173426'),('20170421231924'),('20170426225719'),('20170504211619'),('20170504212208'),('20170604165355'),('20170627173019'),('20170725190809'),('20170729024546'),('20170806145525'),('20170813203843'),('20171103151518'),('20180509200425'),('20180529204642'),('20180809012224'),('20181221174622');
+INSERT INTO `schema_migrations` VALUES ('20131029153603'),('20131029153634'),('20131111143554'),('20131111143621'),('20131113172448'),('20131113181345'),('20131119164152'),('20131119164208'),('20131122032927'),('20131223192901'),('20140131235419'),('20140404201838'),('20140404201900'),('20140404204258'),('20140408224245'),('20140428213241'),('20140507230919'),('20140508203643'),('20140513225335'),('20140616190537'),('20140714220057'),('20140907220135'),('20150124195318'),('20150124201744'),('20150129213358'),('20150129221830'),('20150212051010'),('20150212051027'),('20150213173621'),('20150222153442'),('20150326202149'),('20150405154727'),('20150515160553'),('20150515160619'),('20150719221125'),('20150719221226'),('20150719221253'),('20150719223053'),('20150720044538'),('20150828232337'),('20150923014954'),('20150923015030'),('20150923184243'),('20150924044044'),('20150926162327'),('20151027164741'),('20151029034310'),('20151118210640'),('20151203054202'),('20160128203950'),('20160128205317'),('20160128205943'),('20160129021809'),('20160129164244'),('20160129165100'),('20160330023703'),('20160330033810'),('20160330185947'),('20160330190634'),('20160411130601'),('20160411131711'),('20160412010529'),('20160427043024'),('20160427043546'),('20160429232330'),('20160429232408'),('20160429232434'),('20160430000308'),('20160430152749'),('20160514044605'),('20160526204339'),('20160607162741'),('20160615161649'),('20160720211005'),('20161113203042'),('20161219172133'),('20170330173426'),('20170421231924'),('20170426225719'),('20170504211619'),('20170504212208'),('20170604165355'),('20170627173019'),('20170725190809'),('20170729024546'),('20170806145525'),('20170813203843'),('20171103151518'),('20180509200425'),('20180529204642'),('20180809012224'),('20181221174622'),('20200810000000'),('20200810000010'),('20200810000020'),('20200910000000');
 /*!40000 ALTER TABLE `schema_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -883,7 +984,8 @@ CREATE TABLE `timings` (
   `active` tinyint(1) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_timings_on_parent_class_and_parent_id` (`parent_class`,`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -912,7 +1014,9 @@ CREATE TABLE `uploads` (
   `upload_updated_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_uploads_on_job_id` (`job_id`),
+  CONSTRAINT `fk_rails_76093eb5d3` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -940,7 +1044,11 @@ CREATE TABLE `user_budget_associations` (
   `disabled` tinyint(1) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_user_budget_associations_on_budget_id` (`budget_id`),
+  KEY `index_user_budget_associations_on_user_id` (`user_id`),
+  CONSTRAINT `fk_rails_a2966bc54b` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_f1322363b9` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -988,6 +1096,68 @@ INSERT INTO `users` VALUES (1,'Joe Neptune','neptune','2013-06-16 17:26:54','201
 UNLOCK TABLES;
 
 --
+-- Temporary table structure for view `view_job_assignment_logs`
+--
+
+DROP TABLE IF EXISTS `view_job_assignment_logs`;
+/*!50001 DROP VIEW IF EXISTS `view_job_assignment_logs`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_job_assignment_logs` AS SELECT 
+ 1 AS `id`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `view_job_assignments`
+--
+
+DROP TABLE IF EXISTS `view_job_assignments`;
+/*!50001 DROP VIEW IF EXISTS `view_job_assignments`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_job_assignments` AS SELECT 
+ 1 AS `id`,
+ 1 AS `job_id`,
+ 1 AS `assigned_by`,
+ 1 AS `assigned_to`,
+ 1 AS `created_at`,
+ 1 AS `updated_at`,
+ 1 AS `pc`,
+ 1 AS `by_name`,
+ 1 AS `by_login`,
+ 1 AS `to_name`,
+ 1 AS `to_login`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `view_job_associations`
+--
+
+DROP TABLE IF EXISTS `view_job_associations`;
+/*!50001 DROP VIEW IF EXISTS `view_job_associations`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_job_associations` AS SELECT 
+ 1 AS `job_id`,
+ 1 AS `n`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `view_job_operation_types`
+--
+
+DROP TABLE IF EXISTS `view_job_operation_types`;
+/*!50001 DROP VIEW IF EXISTS `view_job_operation_types`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `view_job_operation_types` AS SELECT 
+ 1 AS `job_id`,
+ 1 AS `operation_type_id`,
+ 1 AS `name`,
+ 1 AS `category`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `wires`
 --
 
@@ -1001,7 +1171,11 @@ CREATE TABLE `wires` (
   `active` tinyint(1) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_wires_on_from_id` (`from_id`),
+  KEY `index_wires_on_to_id` (`to_id`),
+  CONSTRAINT `fk_rails_1073ab769d` FOREIGN KEY (`to_id`) REFERENCES `field_values` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rails_684cde68aa` FOREIGN KEY (`from_id`) REFERENCES `field_values` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1068,6 +1242,78 @@ LOCK TABLES `workers` WRITE;
 INSERT INTO `workers` VALUES (1,'publisher',NULL,'running','2018-11-16 16:09:14','2018-11-16 16:09:14'),(2,'publisher',NULL,'done','2018-11-16 16:10:31','2018-11-16 16:11:22'),(3,'publisher',NULL,'done','2018-11-16 16:11:16','2018-11-16 16:12:03'),(4,'publisher',NULL,'done','2018-11-16 16:15:00','2018-11-16 16:15:39'),(5,'publisher',NULL,'done','2018-11-16 16:16:19','2018-11-16 16:17:11'),(6,'publisher',NULL,'done','2018-11-16 16:19:23','2018-11-16 16:19:56'),(7,'publisher',NULL,'done','2018-11-16 17:45:28','2018-11-16 17:45:45'),(8,'publisher',NULL,'done','2018-11-16 17:48:08','2018-11-16 17:48:18'),(9,'publisher',NULL,'done','2018-11-16 18:43:18','2018-11-16 18:43:39'),(10,'publisher',NULL,'done','2018-11-16 18:46:03','2018-11-16 18:46:17'),(11,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON','error','2018-11-16 18:48:41','2018-11-16 18:48:47'),(12,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON','error','2018-11-16 18:54:15','2018-11-16 18:54:21'),(13,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON','error','2018-11-16 18:55:55','2018-11-16 18:56:00'),(14,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON','error','2018-11-16 19:01:31','2018-11-16 19:01:35'),(15,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON','error','2018-11-16 19:02:46','2018-11-16 19:02:51'),(16,'publisher',NULL,'running','2018-11-16 19:08:07','2018-11-16 19:08:07'),(17,'publisher',NULL,'running','2018-11-16 19:14:15','2018-11-16 19:14:15'),(18,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON: (erb):21:in `make_index\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 19:21:57','2018-11-16 19:22:02'),(19,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON: (erb):21:in `make_index\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 19:24:08','2018-11-16 19:24:14'),(20,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON: (erb):21:in `make_index\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 19:27:22','2018-11-16 19:27:28'),(21,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON: (erb):21:in `make_index\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 19:30:01','2018-11-16 19:30:07'),(22,'publisher','undefined method `join\' for nil:NilClass\nDid you mean?  JSON: (erb):21:in `make_index\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 19:33:00','2018-11-16 19:33:05'),(23,'publisher',NULL,'done','2018-11-16 19:34:25','2018-11-16 19:34:39'),(24,'publisher',NULL,'done','2018-11-16 19:35:54','2018-11-16 19:36:09'),(25,'publisher','undefined method `each\' for nil:NilClass: (erb):20:in `make_about_md\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 20:41:04','2018-11-16 20:41:09'),(26,'publisher','undefined method `each\' for nil:NilClass: (erb):20:in `make_about_md\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 20:45:28','2018-11-16 20:45:33'),(27,'publisher','undefined method `each\' for nil:NilClass: (erb):13:in `make_about_md\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `block in result\'','error','2018-11-16 20:47:12','2018-11-16 20:47:16'),(28,'publisher',NULL,'done','2018-11-16 20:48:39','2018-11-16 20:48:55'),(29,'publisher',NULL,'done','2018-11-16 20:53:35','2018-11-16 20:53:50'),(30,'publisher',NULL,'done','2018-11-16 20:54:37','2018-11-16 20:54:51'),(31,'publisher',NULL,'done','2018-11-16 20:55:41','2018-11-16 20:55:56'),(32,'publisher',NULL,'done','2018-11-16 21:58:44','2018-11-16 21:58:58'),(33,'publisher',NULL,'running','2018-11-16 22:02:27','2018-11-16 22:02:27'),(34,'publisher','undefined local variable or method `zipname\' for #<Aquadoc::Render:0x00007ffe86a82230>: (erb):5:in `make_about_md\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb.rb:861:in `eval\', /Users/ericklavins/.rvm/rubies/ruby-2.3.7/lib/ruby/2.3.0/erb','error','2018-11-16 22:07:51','2018-11-16 22:07:56'),(35,'publisher',NULL,'done','2018-11-16 22:09:37','2018-11-16 22:09:48'),(36,'publisher',NULL,'done','2018-11-16 22:12:31','2018-11-16 22:12:51'),(37,'publisher',NULL,'done','2018-11-16 22:17:24','2018-11-16 22:17:51'),(38,'publisher',NULL,'done','2018-11-16 22:22:22','2018-11-16 22:22:33'),(39,'publisher',NULL,'done','2018-11-27 23:09:12','2018-11-27 23:10:09'),(40,'publisher',NULL,'done','2018-11-27 23:28:01','2018-11-27 23:28:36'),(41,'publisher',NULL,'done','2018-11-27 23:30:47','2018-11-27 23:31:14'),(42,'publisher',NULL,'done','2018-11-27 23:34:57','2018-11-27 23:35:13'),(43,'publisher',NULL,'done','2018-11-27 23:36:23','2018-11-27 23:36:51'),(44,'publisher',NULL,'done','2018-11-27 23:41:27','2018-11-27 23:42:18'),(45,'publisher',NULL,'done','2018-12-12 18:29:44','2018-12-12 18:31:08'),(46,'publisher',NULL,'done','2018-12-17 21:35:41','2018-12-17 21:36:01'),(47,'publisher',NULL,'done','2018-12-17 21:45:33','2018-12-17 21:45:52'),(48,'publisher',NULL,'done','2018-12-17 22:15:09','2018-12-17 22:15:29'),(49,'publisher',NULL,'done','2018-12-17 22:30:15','2018-12-17 22:30:33'),(50,'publisher',NULL,'done','2018-12-17 22:37:31','2018-12-17 22:37:51'),(51,'publisher',NULL,'done','2018-12-17 22:48:07','2018-12-17 22:48:14'),(52,'publisher',NULL,'done','2018-12-17 23:11:22','2018-12-17 23:11:40');
 /*!40000 ALTER TABLE `workers` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Final view structure for view `view_job_assignment_logs`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_job_assignment_logs`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`aquarium`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_job_assignment_logs` AS select max(`job_assignment_logs`.`id`) AS `id` from `job_assignment_logs` group by `job_assignment_logs`.`job_id` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `view_job_assignments`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_job_assignments`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`aquarium`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_job_assignments` AS select `jal`.`id` AS `id`,`jal`.`job_id` AS `job_id`,`jal`.`assigned_by` AS `assigned_by`,`jal`.`assigned_to` AS `assigned_to`,`jal`.`created_at` AS `created_at`,`jal`.`updated_at` AS `updated_at`,`j`.`pc` AS `pc`,`ub`.`name` AS `by_name`,`ub`.`login` AS `by_login`,`ut`.`name` AS `to_name`,`ut`.`login` AS `to_login` from ((((`job_assignment_logs` `jal` join `view_job_assignment_logs` `vjal` on((`vjal`.`id` = `jal`.`id`))) join `jobs` `j` on((`j`.`id` = `jal`.`job_id`))) join `users` `ub` on((`ub`.`id` = `jal`.`assigned_by`))) join `users` `ut` on((`ut`.`id` = `jal`.`assigned_to`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `view_job_associations`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_job_associations`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`aquarium`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_job_associations` AS select `ja`.`job_id` AS `job_id`,count(0) AS `n` from `job_associations` `ja` group by `ja`.`job_id` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `view_job_operation_types`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_job_operation_types`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`aquarium`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_job_operation_types` AS select distinct `ja`.`job_id` AS `job_id`,`o`.`operation_type_id` AS `operation_type_id`,`ot`.`name` AS `name`,`ot`.`category` AS `category` from ((`job_associations` `ja` join `operations` `o` on((`o`.`id` = `ja`.`operation_id`))) join `operation_types` `ot` on((`ot`.`id` = `o`.`operation_type_id`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1078,4 +1324,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-01-24  8:54:18
+-- Dump completed on 2021-05-24 16:16:33
