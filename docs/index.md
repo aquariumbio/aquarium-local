@@ -51,37 +51,15 @@ To halt the Aquarium services, first type `ctrl-c` in the terminal to stop the r
 
 ## Updating/Migrating Aquarium
 
-The `aquarium.sh` script will pull updates within a version of Aquarium, however, when a new version of Aquarium is released you will need to run the command
+Running `aquarium.sh update` will pull updates within a version of Aquarium and migrate the database.
+However, when a new version of Aquarium is released you will need to run the command
 
 ```bash
 git pull
 ```
 
 which will update the configuration files.
-
-If there are any necessary `rake` tasks (see the release notes of the new version) run
-
-```bash
-docker-compose up -d
-docker-compose exec app /bin/sh
-
-```
-
-followed by the rake task. 
-For instance, to run a database migration, you would run the command
-
-```bash
-RAILS_ENV=production rake db:migrate 
-```
-
-After you've run all of the rake tasks, exit from the connection and shutdown Aquarium with
-
-```bash
-exit
-docker-compose down
-```
-
-And, finally, restart Aquarium with `./aquarium.sh up` as before.
+Run `aquarium.sh update` to make sure everything is up-to-date, and, finally, restart Aquarium with `./aquarium.sh up` as before.
 
 ## Changing the Database
 
@@ -103,7 +81,7 @@ rm -rf data/db/*
 ```
 
 and finally restarting Aquarium with `./aquarium.sh up` as before.
-If Aquarium has been updated since the database dump was generated, it is a good idea to run database migrations as described above.
+If Aquarium has been updated since the database dump was generated, it is a good idea to run database migrations with `aquarium.sh update`.
 
 > **Important**: If you swap in a large database dump, the database has to be reinitialized.
 > And the larger the database, the longer the initialization will take.
