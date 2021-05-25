@@ -2,7 +2,7 @@
 ENV_FILE=.env
 
 _has_variable() {
-    variable=$1
+    local variable=$1
     grep -q "^$variable" $ENV_FILE
     if [ $? -eq 0 ]; then
         return 0
@@ -12,14 +12,14 @@ _has_variable() {
 }
 
 _set_value() {
-    variable=$1
-    value=$2
+    local variable=$1
+    local value=$2
     echo $variable=$value >> $ENV_FILE
 }
 
 _set_variable() {
-    variable=$1
-    value=$2
+    local variable=$1
+    local value=$2
     _has_variable $variable
     if [ $? -gt 0 ]; then
        _set_value $variable $value
@@ -27,19 +27,31 @@ _set_variable() {
 }
 
 _set_random() {
-    variable=$1
-    length=$2
+    local variable=$1
+    local length=$2
     _has_variable $variable
     if [ $? -gt 0 ]; then
-        value=`openssl rand -hex $length`
+        local value=`openssl rand -hex $length`
         _set_value $variable $value
+    fi
+}
+
+_get_timezone() {
+    if [[ -z ${timezone+x} ]]; then
+        timezone=`curl https://ipapi.co/timezone` 2> /dev/null
+    fi
+
+    if [[ ${timezone} =~ 'error' ]]; then
+        echo 'Error getting timezone'
+        timezone='America/Los_Angeles'
+        echo 'Using ${timezone}'
     fi
 }
 
 _set_timezone() {
     _has_variable 'TIMEZONE'
     if [ $? -gt 0 ]; then
-        timezone=`curl https://ipapi.co/timezone` 2> /dev/null
+        _get_timezone
         _set_variable 'TIMEZONE' $timezone
     fi
 }
@@ -71,6 +83,14 @@ _setup() {
     fi
 }
 
+_dump_database() {
+    local user=`perl -lne '/^DB_USER=(.*)/ && print "$1"' $ENV_FILE`
+    local password=`perl -lne '/^DB_PASSWORD=(.*)/ && print "$1"' $ENV_FILE`
+    local database=`perl -lne '/^DB_NAME=(.*)/ && print "$1"' $ENV_FILE`
+    local dump_file=${database}_dump.sql
+    docker-compose exec db mysqldump -u "$user" -p"$password" $database | grep -v "mysqldump:" > $dump_file
+}
+
 if [ $# -eq 0 ]; then
     echo "Expecting arguments: up, down or valid docker-compose argument"
 elif [ $1 = "up" ]; then
@@ -86,6 +106,8 @@ elif [ $1 = "update" ]; then
     rm $ENV_FILE
     _setup
     docker-compose pull && docker-compose run --rm app $@
+elif [ $1 = "dump" ]; then
+    _dump_database
 elif [ $1 = "down" ]; then
     docker-compose $@ -v
 else
